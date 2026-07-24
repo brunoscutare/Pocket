@@ -85,19 +85,6 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      {/* Dica */}
-      <View style={styles.tipCard}>
-        <Text style={styles.tipTitle}>Dica do Pocket</Text>
-
-        <Text style={styles.tipText}>
-          Você possui 3 tarefas pendentes. Concluir apenas duas hoje já aumenta
-          sua produtividade em mais de 60%.
-        </Text>
-
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>VER TAREFAS</Text>
-        </TouchableOpacity>
-      </View>
     </ScrollView>
   );
 }
