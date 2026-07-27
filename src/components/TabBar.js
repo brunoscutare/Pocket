@@ -7,7 +7,7 @@ const TABS = [
   { name: 'index', icon: 'home-outline', iconActive: 'home', label: 'Início' },
   { name: 'pendencias', icon: 'time-outline', iconActive: 'time', label: 'Pendências' },
   { name: 'movimentacoes', icon: 'swap-horizontal-outline', iconActive: 'swap-horizontal', label: 'Movimentações' },
-  { name: 'perfil', icon: 'person-outline', iconActive: 'person', label: 'Perfil' },
+  { name: 'configuracoes', icon: 'settings-outline', iconActive: 'settings', label: 'Configurações' },
 ];
 
 export function TabBar({ state, navigation }) {

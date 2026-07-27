@@ -16,9 +16,9 @@ export function IOSTabsLayout() {
         <Icon sf={{ default: 'arrow.left.arrow.right', selected: 'arrow.left.arrow.right.circle.fill' }} />
         <Label>Movimentações</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="perfil">
-        <Icon sf={{ default: 'person', selected: 'person.fill' }} />
-        <Label>Perfil</Label>
+      <NativeTabs.Trigger name="configuracoes">
+        <Icon sf={{ default: 'gearshape', selected: 'gearshape.fill' }} />
+        <Label>Configurações</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

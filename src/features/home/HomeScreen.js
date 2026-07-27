@@ -1,91 +1,156 @@
+import { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from 'expo-router';
+import { Fab } from '../../components/Fab';
+import { PieChart } from '../../components/PieChart';
+import { CORES_TIPOS_GASTO } from '../../constants/tiposGasto';
+import { buscarHistoricoSaldo, buscarRendaTotal } from '../../services/rendaService';
+import { listarPendencias, somarPendenciasConcluidas } from '../../services/pendenciasService';
+import { RendaFormSheet } from './RendaFormSheet';
+import { NotificacoesSheet } from './NotificacoesSheet';
+
+function formatarRenda(valor) {
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
 
 export default function HomeScreen() {
+  const [renda, setRenda] = useState(0);
+  const [saldoReal, setSaldoReal] = useState(0);
+  const [historicoSaldo, setHistoricoSaldo] = useState(0);
+  const [pendencias, setPendencias] = useState([]);
+  const [formAberto, setFormAberto] = useState(false);
+  const [notificacoesAberto, setNotificacoesAberto] = useState(false);
+
+  const carregarRenda = useCallback(() => {
+    Promise.all([
+      buscarRendaTotal(),
+      somarPendenciasConcluidas(),
+      listarPendencias(),
+      buscarHistoricoSaldo(),
+    ]).then(([total, pago, lista, historico]) => {
+      setRenda(total);
+      setSaldoReal(total - pago);
+      setPendencias(lista);
+      setHistoricoSaldo(historico);
+    });
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarRenda();
+    }, [carregarRenda]),
+  );
+
+  const concluidas = pendencias.filter((p) => p.concluido).length;
+  const pendentes = pendencias.length - concluidas;
+
+  // Soma o preço de todas as pendências (marcadas ou não) agrupado por tipo de gasto,
+  // pra montar a pizza de "quanto % cada tipo representa".
+  const dadosGrafico = useMemo(() => {
+    const porTipo = new Map();
+    for (const p of pendencias) {
+      if (!p.preco) continue;
+      const chave = p.tipo || 'Sem tipo';
+      porTipo.set(chave, (porTipo.get(chave) || 0) + p.preco);
+    }
+    return Array.from(porTipo.entries()).map(([label, value]) => ({
+      label,
+      value,
+      color: CORES_TIPOS_GASTO[label] || CORES_TIPOS_GASTO['Sem tipo'],
+    }));
+  }, [pendencias]);
+
   return (
+    <View style={{ flex: 1 }}>
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }}>
       {/* Header */}
       <View style={styles.header}>
         <View>
           <Text style={styles.logo}>POCKET</Text>
-          <Text style={styles.welcome}>Organize seu dia</Text>
+          <Text style={styles.welcome}>Organize seus pagamentos</Text>
         </View>
 
-        <TouchableOpacity style={styles.iconButton}>
+        <TouchableOpacity style={styles.iconButton} onPress={() => setNotificacoesAberto(true)}>
           <Ionicons name="notifications-outline" size={22} color="#ff7a00" />
         </TouchableOpacity>
       </View>
 
-      {/* Card Principal */}
-      <View style={styles.balanceCard}>
-        <Text style={styles.balanceTitle}>TAREFAS DE HOJE</Text>
-
-        <Text style={styles.balanceValue}>08</Text>
-
-        <Text style={styles.balanceSubtitle}>
-          5 concluídas • 3 pendentes
-        </Text>
-      </View>
-
-      {/* Cards */}
+      {/* Renda */}
       <View style={styles.row}>
         <View style={[styles.smallCard, { marginRight: 10 }]}>
-          <Text style={styles.cardTitle}>CONCLUÍDAS</Text>
-
-          <Text style={styles.cardValue}>25</Text>
-
+          <Text style={styles.cardTitle}>ENTROU</Text>
+          <Text style={[styles.cardValue, styles.valorVerde]}>{formatarRenda(renda)}</Text>
           <View style={styles.circleGreen}>
-            <Ionicons name="checkmark" size={20} color="#00d26a" />
+            <Ionicons name="arrow-up" size={20} color="#00d26a" />
           </View>
         </View>
 
         <View style={styles.smallCard}>
-          <Text style={styles.cardTitle}>PENDENTES</Text>
-
-          <Text style={styles.cardValue}>7</Text>
-
-          <View style={styles.circleOrange}>
-            <Ionicons name="time-outline" size={20} color="#ff7a00" />
+          <Text style={styles.cardTitle}>SALDO REAL</Text>
+          <Text style={[styles.cardValue, styles.valorVermelho]}>{formatarRenda(saldoReal)}</Text>
+          <View style={styles.circleVermelho}>
+            <Ionicons name="arrow-down" size={20} color="#ff5252" />
           </View>
         </View>
       </View>
 
-      {/* Progresso */}
+      {/* Gastos por tipo */}
       <View style={styles.graphCard}>
-        <Text style={styles.graphTitle}>Progresso da Semana</Text>
-
-        <View style={styles.fakeChart}>
-          <View style={[styles.bar, { height: 40 }]} />
-          <View style={[styles.bar, { height: 80 }]} />
-          <View style={[styles.bar, { height: 55 }]} />
-          <View style={[styles.bar, { height: 120 }]} />
-          <View style={[styles.bar, { height: 95 }]} />
-          <View style={[styles.bar, { height: 140 }]} />
-          <View style={[styles.bar, { height: 110 }]} />
-        </View>
+        <Text style={styles.graphTitle}>Gastos por tipo</Text>
+        <PieChart data={dadosGrafico} />
       </View>
 
-      {/* Últimas tarefas */}
-      <View style={styles.listCard}>
-        <Text style={styles.graphTitle}>Últimas tarefas</Text>
+      {/* Card Principal */}
+      <View style={styles.balanceCard}>
+        <Text style={styles.balanceTitle}>PENDÊNCIAS DO MÊS</Text>
 
-        {[
-          "Comprar mercado",
-          "Estudar React Native",
-          "Pagar internet",
-        ].map((item, index) => (
-          <View key={index} style={styles.taskItem}>
-            <Ionicons name="checkbox-outline" size={24} color="#ff7a00" />
+        <Text style={styles.balanceValue}>{String(pendencias.length).padStart(2, '0')}</Text>
 
-            <View style={{ marginLeft: 15 }}>
-              <Text style={styles.taskTitle}>{item}</Text>
-              <Text style={styles.taskSubtitle}>Hoje</Text>
-            </View>
+        <Text style={styles.balanceSubtitle}>
+          {concluidas} concluída{concluidas === 1 ? '' : 's'} • {pendentes} pendente{pendentes === 1 ? '' : 's'}
+        </Text>
+      </View>
+
+      {/* Histórico do saldo */}
+      <View style={styles.smallCard}>
+        <View style={styles.historicoRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.cardTitle}>HISTÓRICO DO SALDO</Text>
+            <Text
+              style={[
+                styles.cardValue,
+                styles.historicoValor,
+                historicoSaldo >= 0 ? styles.valorVerde : styles.valorVermelho,
+              ]}
+            >
+              {formatarRenda(historicoSaldo)}
+            </Text>
           </View>
-        ))}
+          <View style={historicoSaldo >= 0 ? styles.circleGreen : styles.circleVermelho}>
+            <Ionicons
+              name={historicoSaldo >= 0 ? 'trending-up' : 'trending-down'}
+              size={20}
+              color={historicoSaldo >= 0 ? '#00d26a' : '#ff5252'}
+            />
+          </View>
+        </View>
+        <Text style={styles.historicoSubtitulo}>Soma acumulada do saldo de cada ciclo já fechado</Text>
       </View>
 
     </ScrollView>
+
+      <Fab onPress={() => setFormAberto(true)} />
+
+      <RendaFormSheet
+        open={formAberto}
+        onClose={() => setFormAberto(false)}
+        onSaved={carregarRenda}
+        rendaAtual={renda}
+      />
+
+      <NotificacoesSheet open={notificacoesAberto} onClose={() => setNotificacoesAberto(false)} />
+    </View>
   );
 }
 
@@ -180,9 +245,23 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 
+  valorVerde: { color: "#00d26a", fontSize: 20 },
+  valorVermelho: { color: "#ff5252", fontSize: 20 },
+
+  historicoRow: { flexDirection: "row", alignItems: "flex-start" },
+  historicoValor: { marginTop: 4 },
+  historicoSubtitulo: { color: "#666", fontSize: 11.5, marginTop: 10 },
+
   circleGreen: {
     alignSelf: "flex-end",
     backgroundColor: "#0f261a",
+    padding: 10,
+    borderRadius: 12,
+  },
+
+  circleVermelho: {
+    alignSelf: "flex-end",
+    backgroundColor: "#2a0f0f",
     padding: 10,
     borderRadius: 12,
   },
@@ -208,46 +287,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
     marginBottom: 20,
-  },
-
-  fakeChart: {
-    height: 160,
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-  },
-
-  bar: {
-    width: 22,
-    backgroundColor: ORANGE,
-    borderRadius: 10,
-  },
-
-  listCard: {
-    backgroundColor: "#111",
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: "#222",
-    marginBottom: 18,
-  },
-
-  taskItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "#222",
-  },
-
-  taskTitle: {
-    color: "#fff",
-    fontSize: 17,
-  },
-
-  taskSubtitle: {
-    color: "#777",
-    marginTop: 3,
   },
 
   tipCard: {

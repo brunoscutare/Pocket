@@ -16,7 +16,7 @@ function AndroidTabsLayout() {
       <Tabs.Screen name="index" options={{ title: 'Início' }} />
       <Tabs.Screen name="pendencias" options={{ title: 'Pendências' }} />
       <Tabs.Screen name="movimentacoes" options={{ title: 'Movimentações' }} />
-      <Tabs.Screen name="perfil" options={{ title: 'Perfil' }} />
+      <Tabs.Screen name="configuracoes" options={{ title: 'Configurações' }} />
     </Tabs>
   );
 }
