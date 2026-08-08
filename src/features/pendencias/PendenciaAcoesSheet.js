@@ -19,7 +19,7 @@ export function PendenciaAcoesSheet({ open, item, onClose, onClosed, onEditar, o
 
   if (!itemExibido) return null;
 
-  const podeEditar = !itemExibido.precoFixo;
+  const podeEditar = itemExibido;
 
   return (
     <BottomSheet open={open} onClose={onClose} onClosed={onClosed} maxHeight="50%">
@@ -36,9 +36,7 @@ export function PendenciaAcoesSheet({ open, item, onClose, onClosed, onEditar, o
             <Text style={styles.opcaoLabel}>Editar</Text>
             <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
           </Pressable>
-        ) : (
-          <Text style={styles.aviso}>Preço fixo não pode ser editado, só excluído.</Text>
-        )}
+        ) : null }
 
         <Pressable style={styles.opcao} onPress={() => onExcluir(itemExibido)}>
           <View style={[styles.opcaoIcon, styles.opcaoIconPerigo]}>
