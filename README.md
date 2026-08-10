@@ -1,56 +1,52 @@
-# Welcome to your Expo app 👋
+# Pocket
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App de finanças pessoais feito com [Expo](https://expo.dev) e React Native. Organize pendências, acompanhe renda, saldo e movimentações — tudo **offline**, com dados salvos localmente no dispositivo.
 
-## Get started
+## Funcionalidades
 
-1. Install dependencies
+- **Home** — renda, saldo disponível, gráfico por tipo de gasto e atalho para notificações
+- **Pendências** — contas a pagar com valor fixo ou variável, vencimento e lembretes
+- **Movimentações** — histórico de entradas e saídas
+- **Configurações** — preferências do app
 
-   ```bash
-   npm install
-   ```
+Não há backend nem login: os dados ficam em SQLite (`pocket.db`) no aparelho.
 
-2. Start the app
+## Requisitos
 
-   ```bash
-   npx expo start
-   ```
+- Node.js 18+
+- npm
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Como rodar
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Depois, abra no Expo Go, emulador Android ou simulador iOS.
 
-### Other setup steps
+## Scripts
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+| Comando | Descrição |
+|---------|-----------|
+| `npm start` | Inicia o Metro / Expo |
+| `npm run android` | Abre no Android |
+| `npm run ios` | Abre no iOS |
+| `npm run web` | Abre no navegador |
 
-## Learn more
+## Estrutura
 
-To learn more about developing your project with Expo, look at the following resources:
+```
+app/           Rotas (Expo Router)
+src/features/  Telas por domínio
+src/services/  SQLite e regras de negócio
+src/components Componentes reutilizáveis
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Variáveis de ambiente
 
-## Join the community
+O app não usa `.env` hoje. Se você adicionar no futuro, crie um `.env.example` documentando as chaves e **nunca** commite o `.env` real (já está no `.gitignore`).
 
-Join our community of developers creating universal apps.
+## Licença
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+MIT — veja [LICENSE](./LICENSE).
