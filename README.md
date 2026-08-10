@@ -47,6 +47,8 @@ src/components Componentes reutilizáveis
 
 O app não usa `.env` hoje. Se você adicionar no futuro, crie um `.env.example` documentando as chaves e **nunca** commite o `.env` real (já está no `.gitignore`).
 
-## Licença
+## Direitos autorais
 
-MIT — veja [LICENSE](./LICENSE).
+© Bruno Scutare. Todos os direitos reservados.
+
+Este código é proprietário. Não é permitido copiar, modificar ou distribuir sem autorização prévia.
