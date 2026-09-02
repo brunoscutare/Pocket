@@ -37,15 +37,23 @@ export default function ConfiguracoesScreen() {
       'Isso apaga a renda e o histórico de movimentações. As pendências (checkboxes) não são afetadas. Essa ação não pode ser desfeita.',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { text: 'Limpar', style: 'destructive', onPress: executarLimpeza },
+        { text: 'Manter histórico', onPress: () => confirmarLimpezaFinal(false) },
+        { text: 'Remover tudo', style: 'destructive', onPress: () => confirmarLimpezaFinal(true) },
       ],
     );
   }
 
-  async function executarLimpeza() {
+  function confirmarLimpezaFinal(limparHistoricoSaldo) {
+    Alert.alert('Confirmar limpeza', 'Essa aÃ§Ã£o nÃ£o pode ser desfeita.', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Limpar dados', style: 'destructive', onPress: () => executarLimpeza(limparHistoricoSaldo) },
+    ]);
+  }
+
+  async function executarLimpeza(limparHistoricoSaldo) {
     setLimpando(true);
     try {
-      await limparDados();
+      await limparDados({ limparHistoricoSaldo });
       Alert.alert('Pronto', 'Os dados foram limpos.');
     } catch (e) {
       Alert.alert('Erro', 'Não foi possível limpar os dados.');
