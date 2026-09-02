@@ -32,6 +32,7 @@ export function getDb() {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           descricao TEXT NOT NULL,
           valor REAL NOT NULL,
+          pendencia_id INTEGER,
           criado_em TEXT NOT NULL DEFAULT (datetime('now'))
         );
       `);
@@ -43,6 +44,11 @@ export function getDb() {
         await db.execAsync('ALTER TABLE pendencias ADD COLUMN tipo TEXT;');
       } catch (_e) {
         // Coluna já existe — ignora.
+      }
+      try {
+        await db.execAsync('ALTER TABLE movimentacoes ADD COLUMN pendencia_id INTEGER;');
+      } catch (_e) {
+        // Coluna já existe.
       }
       try {
         await db.execAsync('ALTER TABLE renda ADD COLUMN historico_saldo REAL NOT NULL DEFAULT 0;');

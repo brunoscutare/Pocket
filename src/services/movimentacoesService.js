@@ -54,7 +54,31 @@ export async function listarMovimentacoes({ busca = '', data = null, offset = 0,
   return { itens: rows.map(fromRow), total: totalRow?.total ?? 0 };
 }
 
-export async function registrarMovimentacao(descricao, valor) {
+export async function registrarMovimentacao(descricao, valor, pendenciaId = null) {
   const db = await getDb();
-  await db.runAsync('INSERT INTO movimentacoes (descricao, valor) VALUES (?, ?);', descricao, valor);
+  await db.runAsync(
+    'INSERT INTO movimentacoes (descricao, valor, pendencia_id) VALUES (?, ?, ?);',
+    descricao,
+    valor,
+    pendenciaId,
+  );
+}
+
+export async function excluirMovimentacoesDaPendencia(pendenciaId, descricao = null, valor = null) {
+  const db = await getDb();
+  if (descricao != null && valor != null) {
+    await db.runAsync(
+      `DELETE FROM movimentacoes
+       WHERE id = (
+         SELECT id FROM movimentacoes
+         WHERE pendencia_id = ? OR (pendencia_id IS NULL AND descricao = ? AND valor = ?)
+         ORDER BY id DESC LIMIT 1
+       );`,
+      pendenciaId,
+      descricao,
+      -Math.abs(valor),
+    );
+    return;
+  }
+  await db.runAsync('DELETE FROM movimentacoes WHERE pendencia_id = ?;', pendenciaId);
 }

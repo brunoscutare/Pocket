@@ -5,7 +5,7 @@ import { Checkbox } from '../../components/Checkbox';
 import { Fab } from '../../components/Fab';
 import { colors } from '../../theme/colors';
 import { alternarConcluido, excluirPendencia, listarPendencias } from '../../services/pendenciasService';
-import { registrarMovimentacao } from '../../services/movimentacoesService';
+import { excluirMovimentacoesDaPendencia, registrarMovimentacao } from '../../services/movimentacoesService';
 import { buscarRendaTotal } from '../../services/rendaService';
 import { PendenciaAcoesSheet } from './PendenciaAcoesSheet';
 import { PendenciaFormSheet } from './PendenciaFormSheet';
@@ -74,7 +74,9 @@ export default function PendenciasScreen() {
     // Só registra no histórico de movimentações quando MARCA como paga (não ao
     // desmarcar) — e só se tiver preço, senão não há valor pra lançar.
     if (novoConcluido && item.preco != null) {
-      await registrarMovimentacao(item.nome, -item.preco);
+      await registrarMovimentacao(item.nome, -item.preco, item.id);
+    } else if (!novoConcluido) {
+      await excluirMovimentacoesDaPendencia(item.id, item.nome, item.preco);
     }
     carregar();
   }

@@ -1,5 +1,6 @@
 import { getDb } from './database';
 import { cancelarNotificacoes, reagendarNotificacoes } from './notificacoesService';
+import { excluirMovimentacoesDaPendencia } from './movimentacoesService';
 
 // Cada linha é uma pendência (o "checkbox"). O app é 100% offline — sem servidor, tudo
 // fica só no SQLite local do aparelho.
@@ -89,6 +90,8 @@ export async function excluirPendencia(id) {
   if (row) {
     await cancelarNotificacoes(fromRow(row));
   }
+  await excluirMovimentacoesDaPendencia(id, row?.nome, row?.preco);
+  await excluirMovimentacoesDaPendencia(id);
   await db.runAsync('DELETE FROM pendencias WHERE id = ?;', id);
 }
 
