@@ -193,7 +193,7 @@ export default function MovimentacoesScreen() {
                     >
                       <View style={styles.itemIconBox}>
                         <Ionicons
-                          name={positivo ? 'arrow-down' : 'arrow-up'}
+                          name={positivo ? 'arrow-up' : 'arrow-down'}
                           size={18}
                           color={positivo ? '#00d26a' : colors.accent}
                         />
